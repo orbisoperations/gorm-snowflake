@@ -1,6 +1,6 @@
-module github.factset.com/FactSet/gorm-snowflake
+module github.com/orbisoperations/gorm-snowflake
 
-go 1.15
+go 1.18
 
 require (
 	github.com/apache/arrow/go/arrow v0.0.0-20210412155425-91a658aa3db1 // indirect
@@ -16,5 +16,5 @@ require (
 	golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	gorm.io/gorm v1.21.12
+	gorm.io/gorm v1.23.5
 )
