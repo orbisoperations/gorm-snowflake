@@ -6,6 +6,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"database/sql"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/migrator"
@@ -27,6 +29,7 @@ func (m Migrator) AutoMigrate(values ...interface{}) error {
 		} else {
 			if err := m.RunWithValue(value, func(stmt *gorm.Statement) (errr error) {
 				columnTypes, _ := m.DB.Migrator().ColumnTypes(value)
+				log.Infof("column types for table %s: %#v\n", stmt.Table, columnTypes)
 
 				for _, field := range stmt.Schema.FieldsByDBName {
 					var foundColumn gorm.ColumnType
@@ -228,6 +231,46 @@ func (m Migrator) DropTable(values ...interface{}) error {
 		}
 	}
 	return nil
+}
+
+func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
+	columns := []gorm.ColumnType{}
+	m.RunWithValue(value, func(stmt *gorm.Statement) error {
+		currentDatabase := m.DB.Migrator().CurrentDatabase()
+		currentSchema := m.DB.Migrator().(Migrator).currentSchema()
+		rows, rowErr := m.DB.Raw(
+			"SELECT column_name, data_type FROM INFORMATION_SCHEMA.COLUMNS where table_name = ? AND table_catalog = ? AND table_schema = ? ",
+			strings.ToUpper(stmt.Table), currentDatabase, currentSchema,
+		).Rows()
+
+		if rowErr != nil {
+			return rowErr
+		}
+
+		defer rows.Close()
+		for rows.Next() {
+			var columnName string
+			var columnType string
+			scanErr := rows.Scan(&columnName, columnType)
+			if scanErr != nil {
+				return scanErr
+			}
+
+			columns = append(columns, migrator.ColumnType{
+				NameValue: sql.NullString{
+					String: columnName,
+					Valid:  true,
+				},
+				DataTypeValue: sql.NullString{
+					String: columnType,
+					Valid:  true,
+				},
+			})
+		}
+
+		return nil
+	})
+	return columns, nil
 }
 
 // HasColumn modified for SF information schema structure
