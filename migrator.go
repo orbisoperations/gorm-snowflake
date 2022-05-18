@@ -255,7 +255,7 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 			log.Info("next row for column types query")
 			var columnName string
 			var columnType string
-			scanErr := rows.Scan(&columnName, columnType)
+			scanErr := rows.Scan(&columnName, &columnType)
 			if scanErr != nil {
 				log.Error(scanErr.Error())
 				return scanErr
