@@ -147,6 +147,32 @@ func (m Migrator) CreateTable(values ...interface{}) error {
 	return nil
 }
 
+func (m Migrator) GetTables() ([]string, error) {
+	tables := []string{}
+	currentDatabase := m.DB.Migrator().CurrentDatabase()
+	currentSchema := m.DB.Migrator().(Migrator).currentSchema()
+	rows, err := m.DB.Raw("SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_catalog = ? AND table_schema = ?",
+		currentDatabase, currentSchema,
+	).Rows()
+
+	if err != nil {
+		return tables, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var tableName string
+		rowErr := rows.Scan(&tableName)
+		if rowErr != nil {
+			return []string{}, rowErr
+		}
+
+		tables = append(tables, tableName)
+	}
+
+	return tables, nil
+}
+
 // HasTable modified for snowflake information_schema structure and convention (uppercased)
 func (m Migrator) HasTable(value interface{}) bool {
 	var count int64
