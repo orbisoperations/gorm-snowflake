@@ -37,7 +37,7 @@ func (m Migrator) AutoMigrate(values ...interface{}) error {
 					var foundColumn gorm.ColumnType
 
 					for _, columnType := range columnTypes {
-						if columnType.Name() == field.DBName {
+						if strings.EqualFold(columnType.Name(), field.DBName) {
 							foundColumn = columnType
 							break
 						}
