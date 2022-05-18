@@ -266,6 +266,8 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 					Valid:  true,
 				},
 			})
+
+			log.Infof("appended new column: %#v\n", columns)
 		}
 
 		return nil
