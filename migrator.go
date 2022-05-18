@@ -92,11 +92,10 @@ func (m Migrator) AutoMigrate(values ...interface{}) error {
 	return nil
 }
 
-func (m Migrator) CreateSchemaIfNotExists() error {
+func (m Migrator) CreateSchemaIfNotExists(schema string) error {
 	currentDatabase := m.DB.Migrator().CurrentDatabase()
-	currentSchema := m.DB.Migrator().(Migrator).currentSchema()
 
-	err := m.DB.Exec(fmt.Sprintf("create schema IF NOT EXISTS %s.%s", currentDatabase, currentSchema)).Error
+	err := m.DB.Exec(fmt.Sprintf("create schema IF NOT EXISTS %s.%s", currentDatabase, schema)).Error
 
 	return err
 }
