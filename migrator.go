@@ -239,7 +239,7 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 	m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		currentDatabase := m.DB.Migrator().CurrentDatabase()
 		currentSchema := m.DB.Migrator().(Migrator).currentSchema()
-		log.Infof("getting column types for database.table.schema: %s.%s.%s\n", currentDatabase, stmt.Table, currentSchema)
+		log.Infof("getting column types for database.schema.table: %s.%s.%s\n", currentDatabase, currentSchema, stmt.Table)
 		rows, rowErr := m.DB.Raw(
 			"SELECT column_name, data_type FROM INFORMATION_SCHEMA.COLUMNS where table_name = ? AND table_catalog = ? AND table_schema = ? ",
 			strings.ToUpper(stmt.Table), currentDatabase, currentSchema,
@@ -251,8 +251,8 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 		}
 
 		defer rows.Close()
-
 		for rows.Next() {
+			log.Info("next row for column types query")
 			var columnName string
 			var columnType string
 			scanErr := rows.Scan(&columnName, columnType)
