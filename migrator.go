@@ -234,25 +234,30 @@ func (m Migrator) DropTable(values ...interface{}) error {
 }
 
 func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
+	log.Info("getting table column types")
 	columns := []gorm.ColumnType{}
 	m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		currentDatabase := m.DB.Migrator().CurrentDatabase()
 		currentSchema := m.DB.Migrator().(Migrator).currentSchema()
+		log.Infof("getting column types for database.table.schema: %s.%s.%s\n", currentDatabase, stmt.Table, currentSchema)
 		rows, rowErr := m.DB.Raw(
 			"SELECT column_name, data_type FROM INFORMATION_SCHEMA.COLUMNS where table_name = ? AND table_catalog = ? AND table_schema = ? ",
 			strings.ToUpper(stmt.Table), currentDatabase, currentSchema,
 		).Rows()
 
 		if rowErr != nil {
+			log.Error(rowErr.Error())
 			return rowErr
 		}
 
 		defer rows.Close()
+
 		for rows.Next() {
 			var columnName string
 			var columnType string
 			scanErr := rows.Scan(&columnName, columnType)
 			if scanErr != nil {
+				log.Error(scanErr.Error())
 				return scanErr
 			}
 
