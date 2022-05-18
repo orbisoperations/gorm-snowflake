@@ -92,6 +92,15 @@ func (m Migrator) AutoMigrate(values ...interface{}) error {
 	return nil
 }
 
+func (m Migrator) CreateSchemaIfNotExists() error {
+	currentDatabase := m.DB.Migrator().CurrentDatabase()
+	currentSchema := m.DB.Migrator().(Migrator).currentSchema()
+
+	err := m.DB.Exec(fmt.Sprintf("create schema IF NOT EXISTS %s.%s", currentDatabase, currentSchema)).Error
+
+	return err
+}
+
 // CreateTable modified
 // - include CHANGE_TRACKING=true, for getting output back, may be removed once it can globally supported with table options
 // - remove index (unsupported)
