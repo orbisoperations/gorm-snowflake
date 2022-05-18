@@ -31,6 +31,7 @@ func (m Migrator) AutoMigrate(values ...interface{}) error {
 				columnTypes, _ := m.DB.Migrator().ColumnTypes(value)
 				log.Infof("column types for table %s: %#v\n", stmt.Table, columnTypes)
 
+				log.Infof("schema column names supplied: %#v\n", stmt.Schema.FieldsByDBName)
 				for _, field := range stmt.Schema.FieldsByDBName {
 					var foundColumn gorm.ColumnType
 
