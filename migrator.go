@@ -6,8 +6,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"database/sql"
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/migrator"
@@ -244,8 +242,8 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 		currentSchema := m.DB.Migrator().(Migrator).currentSchema()
 		log.Infof("getting column types for database.schema.table: %s.%s.%s\n", currentDatabase, currentSchema, stmt.Table)
 		rows, rowErr := m.DB.Raw(
-			"SELECT column_name, data_type FROM INFORMATION_SCHEMA.COLUMNS where table_name = ? AND table_catalog = ? AND table_schema = ? ",
-			strings.ToUpper(stmt.Table), currentDatabase, currentSchema,
+			"SELECT * FROM ?.?.?",
+			currentDatabase, currentSchema, strings.ToUpper(stmt.Table),
 		).Rows()
 
 		if rowErr != nil {
@@ -254,29 +252,43 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 		}
 
 		defer rows.Close()
-		for rows.Next() {
-			log.Info("next row for column types query")
-			var columnName string
-			var columnType string
-			scanErr := rows.Scan(&columnName, &columnType)
-			if scanErr != nil {
-				log.Error(scanErr.Error())
-				return scanErr
-			}
 
+		rawColumnTypes, err := rows.ColumnTypes()
+		if err != nil {
+			return err
+		}
+
+		for _, rawColumn := range rawColumnTypes {
 			columns = append(columns, migrator.ColumnType{
-				NameValue: sql.NullString{
-					String: columnName,
-					Valid:  true,
-				},
-				DataTypeValue: sql.NullString{
-					String: columnType,
-					Valid:  true,
-				},
+				SQLColumnType: rawColumn,
 			})
 		}
 
 		return nil
+		/*
+			for rows.Next() {
+				log.Info("next row for column types query")
+				var columnName string
+				var columnType string
+				scanErr := rows.Scan(&columnName, &columnType)
+				if scanErr != nil {
+					log.Error(scanErr.Error())
+					return scanErr
+				}
+
+				columns = append(columns, migrator.ColumnType{
+					NameValue: sql.NullString{
+						String: columnName,
+						Valid:  true,
+					},
+					DataTypeValue: sql.NullString{
+						String: columnType,
+						Valid:  true,
+					},
+				})
+			}
+
+			return nil*/
 	})
 	return columns, nil
 }
