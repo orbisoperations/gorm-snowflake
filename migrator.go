@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/migrator"
@@ -156,6 +158,7 @@ func (m Migrator) HasTable(value interface{}) bool {
 			strings.ToUpper(stmt.Table), currentDatabase, currentSchema,
 		).Row().Scan(&count)
 	})
+	log.Infof("row count for tables: %v\n", count)
 	return count > 0
 }
 
