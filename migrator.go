@@ -242,8 +242,7 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 		currentSchema := m.DB.Migrator().(Migrator).currentSchema()
 		log.Infof("getting column types for database.schema.table: %s.%s.%s\n", currentDatabase, currentSchema, stmt.Table)
 		rows, rowErr := m.DB.Raw(
-			"SELECT * FROM ?.?.?",
-			currentDatabase, currentSchema, strings.ToUpper(stmt.Table),
+			fmt.Sprintf("SELECT * FROM %s.%s.%s limit 1", currentDatabase, currentSchema, strings.ToUpper(stmt.Table)),
 		).Rows()
 
 		if rowErr != nil {
