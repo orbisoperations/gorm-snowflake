@@ -43,6 +43,7 @@ func (m Migrator) AutoMigrate(values ...interface{}) error {
 
 					if foundColumn == nil {
 						// not found, add column
+						log.Infof("column not found and adding to migration: %s\n", field.DBName)
 						if err := tx.Migrator().AddColumn(value, field.DBName); err != nil {
 							return err
 						}
@@ -271,8 +272,6 @@ func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 					Valid:  true,
 				},
 			})
-
-			log.Infof("appended new column: %#v\n", columns)
 		}
 
 		return nil
