@@ -150,9 +150,10 @@ func (m Migrator) HasTable(value interface{}) bool {
 	var count int64
 	m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		currentDatabase := m.DB.Migrator().CurrentDatabase()
+		currentSchema := m.DB.Migrator().(Migrator).currentSchema()
 		return m.DB.Raw(
-			"SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE table_name = ? AND table_catalog = ?",
-			strings.ToUpper(stmt.Table), currentDatabase,
+			"SELECT count(*) FROM INFORMATION_SCHEMA.TABLES WHERE table_name = ? AND table_catalog = ? AND table_schema = ?",
+			strings.ToUpper(stmt.Table), currentDatabase, currentSchema,
 		).Row().Scan(&count)
 	})
 	return count > 0
@@ -363,6 +364,11 @@ func (m Migrator) GuessConstraintAndTable(stmt *gorm.Statement, name string) (_ 
 // CurrentDatabase SF flavor
 func (m Migrator) CurrentDatabase() (name string) {
 	m.DB.Raw("SELECT CURRENT_DATABASE()").Row().Scan(&name)
+	return
+}
+
+func (m Migrator) currentSchema() (name string) {
+	m.DB.Raw("SELECT CURRENT_SCHEMA()").Row().Scan(&name)
 	return
 }
 
