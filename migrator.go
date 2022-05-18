@@ -33,6 +33,7 @@ func (m Migrator) AutoMigrate(values ...interface{}) error {
 
 				log.Infof("schema column names supplied: %#v\n", stmt.Schema.FieldsByDBName)
 				for _, field := range stmt.Schema.FieldsByDBName {
+					log.Infof("comparing against provided column: %s\n", field.DBName)
 					var foundColumn gorm.ColumnType
 
 					for _, columnType := range columnTypes {
