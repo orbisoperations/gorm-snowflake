@@ -25,9 +25,16 @@ func (m Migrator) AutoMigrate(values ...interface{}) error {
 				return err
 			}
 		} else {
-			if err := m.RunWithValue(value, func(stmt *gorm.Statement) (errr error) {
-				columnTypes, _ := m.DB.Migrator().ColumnTypes(value)
-				log.Infof("column types for table %s: %#v\n", stmt.Table, columnTypes)
+			if err := m.RunWithValue(value, func(stmt *gorm.Statement) error {
+				columnTypes, ctErr := m.DB.Migrator().ColumnTypes(value)
+				if ctErr != nil {
+					return ctErr
+				}
+
+				log.Infof("column types for table %s\n", stmt.Table)
+				for _, ct := range columnTypes {
+					log.Infof("\tcolumn: %s, type: %s\n", ct.Name(), ct.ScanType().String())
+				}
 
 				log.Infof("schema column names supplied: %#v\n", stmt.Schema.FieldsByDBName)
 				for _, field := range stmt.Schema.FieldsByDBName {
