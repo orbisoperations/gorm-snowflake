@@ -3,7 +3,8 @@ module github.com/orbisoperations/gorm-snowflake
 go 1.18
 
 require (
-	github.com/snowflakedb/gosnowflake v1.6.9
+	github.com/sirupsen/logrus v1.8.1
+	github.com/snowflakedb/gosnowflake v1.6.10
 	gorm.io/gorm v1.23.5
 )
 
@@ -33,7 +34,6 @@ require (
 	github.com/mattn/go-ieproxy v0.0.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.11 // indirect
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
-	github.com/sirupsen/logrus v1.8.1 // indirect
 	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871 // indirect
 	golang.org/x/net v0.0.0-20211118161319-6a13c67c3ce4 // indirect
 	golang.org/x/sys v0.0.0-20211117180635-dee7805ff2e1 // indirect
